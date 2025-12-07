@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/mock/api")
 @CrossOrigin("*")
 public class MockController {
 
@@ -115,10 +115,10 @@ public class MockController {
     // ================================
     // PINCODE CHECK
     // ================================
-    @PostMapping("/pincode/check")
-    public ResponseEntity<?> checkPincode(@RequestBody Map<String, Object> req) {
+    @GetMapping("/pincode/check")
+    public ResponseEntity<?> checkPincode(@RequestParam(name = "pincode") String pincode) {
         return ResponseEntity.ok(Map.of(
-                "pincode", req.get("pincode"),
+                "pincode", pincode,
                 "serviceable", true,
                 "deliveryChargePaise", 0,
                 "cutoffTime", "20:00"
