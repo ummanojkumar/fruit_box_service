@@ -1,0 +1,9 @@
+FROM gcr.io/distroless/java17-debian12
+
+WORKDIR /app
+
+COPY target/fruit-box-service.jar fruit-box-service.jar
+
+EXPOSE 8080
+
+CMD ["fruit-box-service.jar"]
