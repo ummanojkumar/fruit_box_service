@@ -42,12 +42,17 @@ public class GoogleOAuthService {
                         GoogleTokenResponse.class
                 );
 
+
         return decodeAndValidate(tokenResponse.id_token());
     }
 
     private GoogleIdPayload decodeAndValidate(String idToken) {
 
         try {
+            if (idToken == null || !idToken.contains(".")) {
+                throw new RuntimeException("Missing or invalid id_token");
+            }
+
             String payloadJson = new String(
                     Base64.getUrlDecoder().decode(idToken.split("\\.")[1])
             );
@@ -55,17 +60,28 @@ public class GoogleOAuthService {
             ObjectMapper mapper = new ObjectMapper();
             GoogleIdPayload payload = mapper.readValue(payloadJson, GoogleIdPayload.class);
 
-            if (!payload.aud().equals(clientId))
-                throw new RuntimeException("Invalid audience");
+            // 1️⃣ issuer
+            if (!payload.iss().equals("https://accounts.google.com") &&
+                    !payload.iss().equals("accounts.google.com")) {
+                throw new RuntimeException("Invalid issuer");
+            }
 
-            if (payload.exp() < Instant.now().getEpochSecond())
+            // 2️⃣ audience
+            if (!payload.aud().equals(clientId)) {
+                throw new RuntimeException("Invalid audience");
+            }
+
+            // 3️⃣ expiry
+            if (payload.exp() < Instant.now().getEpochSecond()) {
                 throw new RuntimeException("Token expired");
+            }
 
             return payload;
 
         } catch (Exception e) {
-            throw new RuntimeException("Invalid Google ID token");
+            throw new RuntimeException("Invalid Google ID token: " + e.getMessage());
         }
     }
+
 }
 

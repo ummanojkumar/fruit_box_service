@@ -1,5 +1,6 @@
 package com.mono.fruit_box_service.auth.controller;
 
+import com.mono.fruit_box_service.auth.dto.GoogleAuthRequest;
 import com.mono.fruit_box_service.auth.dto.GoogleIdPayload;
 import com.mono.fruit_box_service.auth.security.JwtService;
 import com.mono.fruit_box_service.auth.security.OAuthStateService;
@@ -8,6 +9,7 @@ import com.mono.fruit_box_service.account.model.Account;
 import com.mono.fruit_box_service.account.service.AccountService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    @Value("${google.client-id}")
+    private String clientId;
+
+    @Value("${google.redirect-uri}")
+    private String redirectUri;
 
     private final GoogleOAuthService googleOAuthService;
     private final AccountService accountService;
@@ -42,7 +50,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", jwt)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false) //todo false only for local
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(900)
@@ -53,7 +61,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/google/url")
+    @GetMapping(value = "/google/url",  produces = "text/plain")
     public ResponseEntity<String> getGoogleUrl() {
 
         String state = oauthStateService.generate();
