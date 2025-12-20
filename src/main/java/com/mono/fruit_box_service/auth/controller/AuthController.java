@@ -47,10 +47,9 @@ public class AuthController {
 
         GoogleIdPayload payload = googleOAuthService.exchangeCodeForUser(code);
 
-        Account account = accountService.findOrCreateFromGoogle(
-                payload.email(),
-                payload.sub()
-        );
+        System.out.println("payload "+payload);
+
+        Account account = accountService.findOrCreateFromGoogle(payload);
 
         String jwt = jwtService.generateToken(account.getId(), account.getRole().name());
 

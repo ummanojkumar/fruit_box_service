@@ -4,6 +4,7 @@ import com.mono.fruit_box_service.account.model.Account;
 import com.mono.fruit_box_service.account.model.AccountRole;
 import com.mono.fruit_box_service.account.model.AccountStatus;
 import com.mono.fruit_box_service.account.repository.AccountRepository;
+import com.mono.fruit_box_service.auth.dto.GoogleIdPayload;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -17,19 +18,22 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public Account findOrCreateFromGoogle(String email, String googleId) {
+    public Account findOrCreateFromGoogle(GoogleIdPayload payload) {
 
-        return accountRepository.findByGoogleId(googleId)
+        return accountRepository.findByGoogleId(payload.sub())
                 .map(account -> {
                     assertAccountIsActive(account);
                     account.setLastLogin(Instant.now());
+                    account.setProfileImage(payload.picture());
                     return accountRepository.save(account);
                 })
                 .orElseGet(() -> {
                     Account account = new Account();
-                    account.setEmail(email);
-                    account.setGoogleId(googleId);
+                    account.setEmail(payload.email());
+                    account.setGoogleId(payload.sub());
                     account.setStatus(AccountStatus.ACTIVE);
+                    account.setName(payload.name());
+                    account.setProfileImage(payload.picture());
                     account.setRole(AccountRole.USER);
                     account.setCreatedAt(Instant.now());
                     account.setLastLogin(Instant.now());

@@ -25,6 +25,12 @@ public class Account {
     @Column(nullable = false)
     private String email;
 
+    @Column(length = 100)
+    private String name;
+
+    @Column(name = "profile_image", length = 500)
+    private String profileImage;
+
     @Column(name = "google_id", nullable = false)
     private String googleId;
 
