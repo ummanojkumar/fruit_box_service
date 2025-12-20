@@ -32,6 +32,7 @@ public class SecurityConfig {
 
                 // 🔑 AUTH RULES (THIS IS THE IMPORTANT PART)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/mock/**").permitAll()
                         .requestMatchers(
                                 "/auth/**",      // allow Google OAuth endpoints
                                 "/error"         // allow error page

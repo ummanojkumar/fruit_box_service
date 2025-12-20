@@ -26,6 +26,12 @@ public class AuthController {
     @Value("${google.redirect-uri}")
     private String redirectUri;
 
+    @Value("${cookie.samesite}")
+    private String cookieSameSite;
+
+    @Value("${cookie.secure}")
+    private String cookieSecure;
+
     private final GoogleOAuthService googleOAuthService;
     private final AccountService accountService;
     private final OAuthStateService oauthStateService;
@@ -50,11 +56,12 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", jwt)
                 .httpOnly(true)
-                .secure(false) //todo false only for local
-                .sameSite("Lax")
+                .secure(Boolean.parseBoolean(cookieSecure)) //todo check for prod properties are applicable or not
+                .sameSite(cookieSameSite)
                 .path("/")
                 .maxAge(900)
                 .build();
+
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
