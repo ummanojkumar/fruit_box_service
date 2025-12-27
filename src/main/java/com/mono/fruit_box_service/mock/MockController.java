@@ -9,7 +9,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/mock/api")
-@CrossOrigin("*")
 public class MockController {
 
     // ================================
