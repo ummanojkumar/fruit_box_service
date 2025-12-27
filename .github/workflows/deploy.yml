@@ -1,0 +1,42 @@
+name: Deploy Spring Boot to VPS
+
+on:
+  push:
+    branches:
+      - integration   # deploy only when integration is updated
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build JAR
+        run: mvn clean package -DskipTests
+
+      - name: Copy JAR to VPS
+        run: |
+          echo "${{ secrets.VPS_SSH_KEY }}" > key.pem
+          chmod 600 key.pem
+          rsync -avz \
+            -e "ssh -i key.pem -o StrictHostKeyChecking=no" \
+            target/*.jar \
+            ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/home/manoj/apps/fruitbox/app.jar
+
+      - name: Restart application
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo systemctl restart bowlboat
+            sudo systemctl status bowlboat --no-pager
