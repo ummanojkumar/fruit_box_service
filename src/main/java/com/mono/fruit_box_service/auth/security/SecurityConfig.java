@@ -35,7 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("/mock/**").permitAll()
                         .requestMatchers(
                                 "/auth/**",      // allow Google OAuth endpoints
-                                "/error"         // allow error page
+                                "/error",                 // allow error page
+                                "/actuator/**"               // monitor health status
                         ).permitAll()
                         .requestMatchers("/users/**").authenticated()
                         .anyRequest().authenticated()
